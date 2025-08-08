@@ -1,0 +1,121 @@
+{
+  "real_times": {
+    "dp_time": 0.08693000000039319,
+    "ip_time": 0.16438540000035573,
+    "greedy_time": 0.0026866000007430557,
+    "total_time": 0.254002000001492
+  },
+  "problem_scale": {
+    "grain_lands": 26,
+    "irrigation_lands": 8,
+    "greenhouse_lands": 20,
+    "total_lands": 54,
+    "years": 7,
+    "crops": 41,
+    "seasons": 2
+  },
+  "time_complexity": {
+    "动态规划": 861,
+    "整数规划": 656,
+    "贪心算法": 107.15104009236168,
+    "分层分治": 1624.1510400923617
+  },
+  "space_complexity": {
+    "动态规划": 287,
+    "整数规划": 656,
+    "贪心算法": 20,
+    "分层分治": 656
+  },
+  "predicted_times": {
+    "dp_times": [
+      0.03725571428588279,
+      0.062092857143137996,
+      0.08693000000039319,
+      0.12418571428627599
+    ],
+    "ip_times": [
+      0.07045088571443817,
+      0.11741814285739695,
+      0.16438540000035573,
+      0.2348362857147939
+    ],
+    "greedy_times": [
+      0.0011514000003184524,
+      0.0019190000005307542,
+      0.0026866000007430557,
+      0.0038380000010615084
+    ],
+    "total_times": [
+      0.10885800000063942,
+      0.1814300000010657,
+      0.254002000001492,
+      0.3628600000021314
+    ]
+  },
+  "problem_sizes": [
+    3,
+    5,
+    7,
+    10
+  ],
+  "algorithm_characteristics": {
+    "动态规划": {
+      "deterministic": true,
+      "optimal": true,
+      "converges": false,
+      "scalability": "medium",
+      "memory_efficient": false
+    },
+    "整数规划": {
+      "deterministic": false,
+      "optimal": true,
+      "converges": true,
+      "scalability": "low",
+      "memory_efficient": false
+    },
+    "贪心算法": {
+      "deterministic": true,
+      "optimal": false,
+      "converges": false,
+      "scalability": "high",
+      "memory_efficient": true
+    }
+  },
+  "performance_scores": {
+    "动态规划": {
+      "求解速度": 8,
+      "解质量": 10,
+      "内存效率": 6,
+      "可扩展性": 7,
+      "实现难度": 5,
+      "稳定性": 10
+    },
+    "整数规划": {
+      "求解速度": 7,
+      "解质量": 4,
+      "内存效率": 4,
+      "可扩展性": 5,
+      "实现难度": 3,
+      "稳定性": 8
+    },
+    "贪心算法": {
+      "求解速度": 10,
+      "解质量": 7,
+      "内存效率": 10,
+      "可扩展性": 9,
+      "实现难度": 9,
+      "稳定性": 9
+    }
+  },
+  "violation_analysis": {
+    "重茬约束": 200,
+    "豆类轮作": 70,
+    "最小面积": 0,
+    "其他": 0
+  },
+  "solution_quality": {
+    "total_violations": 270,
+    "violation_rate": 71.42857142857143,
+    "quality_score": 4.6
+  }
+}
