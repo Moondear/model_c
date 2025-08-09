@@ -44,6 +44,14 @@ class FinalStrictPaperImplementation:
         self.lambda_risk = 0.75  # 风险偏好系数
         self.alpha = 0.05        # CVaR置信水平 α
 
+        # 可选：仅对尾部M个情景施加CVaR（尾部增约）
+        self.use_tail_cvar = False   # 默认关闭，问题三中可开启
+        self.tail_M = None            # 尾部情景个数（相对于 SAA 选取的情景）
+        self.tail_active_indices = None  # 当前迭代所用尾部情景索引集
+
+        # 随机种子（供外部实验配置）
+        self.random_seed = 42
+
         # 不确定性参数范围（可用于敏感性实验）
         self.wc_sales_growth_range = (0.05, 0.10)   # 小麦/玉米销量年增长率 r ∈ [0.05,0.10]
         self.other_sales_delta_range = (-0.05, 0.05) # 其他作物销量一次性波动 δ ∈ [-0.05,0.05]
@@ -181,7 +189,8 @@ class FinalStrictPaperImplementation:
         """生成随机情景 - 严格按照论文6.2.3表格"""
         print(f"\n🎲 生成随机情景 K = {{1,2,...,{self.N_scenarios}}}...")
         
-        np.random.seed(42)  # 固定种子，论文6.5.2要求
+        # 固定/可配置随机种子，确保可复现且便于多种子误差带实验
+        np.random.seed(int(self.random_seed))
         
         crop_ids = list(self.crop_info.keys())
         self.scenarios = []
@@ -355,17 +364,30 @@ class FinalStrictPaperImplementation:
         # 其中 u_k ≥ L_k − τ = −Profit_k − τ，u_k ≥ 0
         expected_profit = pulp.lpSum(self.scenario_profit_vars[k] for k in range(n_scenarios)) / n_scenarios
 
-        # VaR(损失) 与 超额损失变量 u_k
+        # VaR(损失) 与 超额损失变量 u_k（可选尾部增约）
         tau_loss = pulp.LpVariable("tau_loss", cat='Continuous')
         u_k = {}
-        for k in range(n_scenarios):
+        # 选择参与CVaR约束的情景集合
+        if self.use_tail_cvar and self.tail_M is not None and self.tail_M > 0:
+            if self.tail_active_indices is None:
+                # 初始：取前M个代表性情景作为尾部近似
+                active_set = list(range(min(self.tail_M, n_scenarios)))
+            else:
+                # 使用外部迭代传入的尾部集合
+                active_set = [idx for idx in self.tail_active_indices if idx < n_scenarios]
+                if not active_set:
+                    active_set = list(range(min(self.tail_M, n_scenarios)))
+        else:
+            active_set = list(range(n_scenarios))
+
+        for k in active_set:
             u_k[k] = pulp.LpVariable(f"u_excess_loss_{k}", lowBound=0, cat='Continuous')
             # u_k ≥ −Profit_k − tau_loss
             self.model += (u_k[k] >= -self.scenario_profit_vars[k] - tau_loss,
                            f"cvar_excess_loss_{k}")
             constraint_count += 1
 
-        cvar_loss = tau_loss + (1.0 / (self.alpha * n_scenarios)) * pulp.lpSum(u_k[k] for k in range(n_scenarios))
+        cvar_loss = tau_loss + (1.0 / (self.alpha * n_scenarios)) * pulp.lpSum(u_k[k] for k in u_k)
         objective = expected_profit - self.lambda_risk * cvar_loss
         self.model += objective
 
